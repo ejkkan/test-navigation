@@ -12,7 +12,8 @@ import {
     ImageBackground,
     TouchableWithoutFeedback,
     StyleSheet,
-    Image
+    Image,
+    TouchableOpacity
 } from 'react-native';
 import { TabNavigator, DrawerNavigator, StackNavigator, Header } from 'react-navigation';
 
@@ -263,7 +264,11 @@ const MainStack = StackNavigator({
         borderTopWidth: 0,
         elevation:0
       },
-      headerLeft: <Button title="Info" onPress={() => navigation.navigate('DrawerOpen')}/>
+      headerLeft: (
+        <TouchableOpacity style={{width: 50, height: 50, justifyContent: "center", alignItems: "center"}} onPress={() => navigation.navigate('DrawerOpen')}>
+          <Image source={require("./imgs/menu.png")}/>
+        </TouchableOpacity>
+      )
     })
   },
 });
