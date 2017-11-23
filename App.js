@@ -271,6 +271,16 @@ const MainStack = StackNavigator({
       )
     })
   },
+  AdView: {
+    screen: AdView,
+    navigationOptions: {
+      header: null
+    }
+  }
+}, 
+{
+  mode: "card",
+  headerMode: "screen"
 });
 
 class DrawerContent extends Component {
