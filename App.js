@@ -11,7 +11,8 @@ import {
     Dimensions,
     ImageBackground,
     TouchableWithoutFeedback,
-    StyleSheet
+    StyleSheet,
+    Image
 } from 'react-native';
 import { TabNavigator, DrawerNavigator, StackNavigator, Header } from 'react-navigation';
 
@@ -75,6 +76,7 @@ class SimpleScreen1 extends Component {
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
       <StatusBar barStyle="light-content"/>
         <ListView
+          enableEmptySections={true}
           initialListSize={25}
           pageSize={25}
           removeClippedSubviews={false}
@@ -110,6 +112,7 @@ class SimpleScreen2 extends Component {
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
       <StatusBar barStyle="light-content"/>
         <ListView
+          enableEmptySections={true}
           initialListSize={25}
           pageSize={25}
           removeClippedSubviews={false}
@@ -145,6 +148,7 @@ class SimpleScreen3 extends Component {
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
       <StatusBar barStyle="light-content"/>
         <ListView
+          enableEmptySections={true} 
           initialListSize={25}
           pageSize={25}
           removeClippedSubviews={false}
@@ -262,53 +266,59 @@ const MainStack = StackNavigator({
       headerLeft: <Button title="Info" onPress={() => navigation.navigate('DrawerOpen')}/>
     })
   },
-}, {
-
 });
 
-const RootDrawer = DrawerNavigator({
-  SimpleTabs: {
-    screen: MainStack,
-    navigationOptions: {
-      header: null,
-      drawer: () => ({
-        label: 'Simple Tabs'
-      }),
-    },
-  },
-  DrawerMyAccount: {
-    screen: MyAccount,
-    navigationOptions: {
-      mode:'modal',
-      header: null,
-      drawer: () => ({
-        label: 'DrawerMyAccount'
-      }),
-    },
+class DrawerContent extends Component {
+  render() {
+    return (
+      <View style={{flex:1, marginTop: 100}}>
+      <TouchableWithoutFeedback onPress={() => this.navigate("GridWithAds")}>
+        <View style={{ alignItems: "center", flexDirection: "row", alignSelf: "stretch", padding: 14, backgroundColor: "rgb(63,63,63)"}}>
+            <Image source={require("./imgs/gridIcon.png")} style={{marginRight: 10}}/>
+            <Text style={{ color: "#FFF" }}>Alla annonser</Text>
+          </View>
+        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback onPress={() => this.navigate("MyAccount")}>
+          <View style={{ marginTop: 1, alignItems: "center", flexDirection: "row", alignSelf: "stretch", padding: 14, backgroundColor: "rgb(63,63,63)"}}>
+            <Image style={{ width: 25, height: 25, marginRight: 10}} 
+              source={require("./imgs/icons8-settings-filled-50.png")} />
+            <Text style={{ color: "#FFF" }}>Mitt konto</Text>
+          </View>
+        </TouchableWithoutFeedback>
+      </View>
+    );
   }
-},{mode:'modal', headerMode:'none'});
 
-
-const ModalStack = StackNavigator({
-  MainStack: {
-    screen: RootDrawer,
-  },
-  MyAccount: {
-    screen: MyAccount,
-    navigationOptions:{
-      mode: "modal",
-    }
-  },
-  AdView: {
-    screen: AdView,
-    navigationOptions: {
-      mode:'modal',
-      header: null
-    }
+  navigate(screen, props = {}) {
+    this.props.navigation.navigate("DrawerClose");
+    this.props.navigation.navigate(screen, props);
   }
-}, {
-  headerMode:'none',
-});
+}
+
+const RootDrawer = DrawerNavigator(
+  {
+    GridWithAds: { screen: MainStack }
+  }, 
+  {
+    drawerBackgroundColor: "rgb(56,56,56)",
+    contentComponent: DrawerContent
+  }
+);
+
+const ModalStack = StackNavigator(
+  {
+    MainStack: {
+      screen: RootDrawer,
+    },
+    MyAccount: {
+      screen: MyAccount,
+    }
+  }, 
+  {
+    headerMode:'none',
+    mode: "modal"
+  }
+);
 
 const getTimestampFromItemId = inAsHex => {
   return parseInt(inAsHex.slice(0, 11), 16);
