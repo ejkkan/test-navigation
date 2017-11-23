@@ -1,6 +1,17 @@
 
 import React, { Component } from 'react';
-import { Button, Platform, ScrollView, Text, View, StatusBar, ListView, Dimensions, ImageBackground } from 'react-native';
+import {
+    Button,
+    Platform,
+    ScrollView,
+    Text,
+    View,
+    StatusBar,
+    ListView,
+    Dimensions,
+    ImageBackground,
+    TouchableWithoutFeedback
+} from 'react-native';
 import { TabNavigator, DrawerNavigator, StackNavigator, Header } from 'react-navigation';
 const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 const ds2 = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
@@ -9,10 +20,24 @@ const ds3 = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 const {width} = Dimensions.get('window')
 const thumbnailSize = width/3 - 2;
 
-const Ad = ({ad}) => {
+const Ad = ({ad, navigation}) => {
   return (
-    <ImageBackground source={{uri: ad.thumbnail}} style={{width:thumbnailSize, height:thumbnailSize, backgroundColor:'red',marginHorizontal:1,marginTop:1}}>
-    </ImageBackground>
+      <ImageBackground source={{uri: ad.thumbnail}} style={{width:thumbnailSize, height:thumbnailSize,marginHorizontal:1,marginTop:1}}>
+      <TouchableWithoutFeedback onPress={() => navigation.navigate('AdView',{ad})}>
+        <View style={{flexDirection:'column', justifyContent:'space-between',flex:1}}>
+          <View style={{flexDirection:'row', justifyContent:'space-between',alignItems:'flex-start', backgroundColor:'transparent'}}>
+            <Text style={{marginHorizontal:10,color:'white', fontSize:20, fontWeight:'bold'}}>sumzin'</Text>
+          </View>
+          <View style={{flexDirection:'column', backgroundColor:'transparent'}}>
+            <Text style={{marginHorizontal:10,color:'white', fontSize:12, fontWeight:'bold'}}>{ad.title}</Text> 
+            <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'flex-end', backgroundColor:'transparent'}}>
+              <Text style={{margin:10,color:'white', fontSize:20, fontWeight:'bold'}}>{ad.pay}</Text>
+              <Text style={{margin:10,color:'white', fontSize:20, fontWeight:'bold'}}>1d</Text>
+            </View>
+        </View>
+        </View>
+        </TouchableWithoutFeedback>
+      </ImageBackground>
   );
 }
 
@@ -28,6 +53,7 @@ class SimpleScreen1 extends Component {
     fetch('https://api.tiptapp.co/v1/ads?payType=1')
     .then(response => response.json())
     .then(ads => {
+      console.log('ads',ads.items)
       this.setState({ads:ds.cloneWithRows(ads.items)})
     })
   }
@@ -39,18 +65,17 @@ class SimpleScreen1 extends Component {
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
       <StatusBar barStyle="light-content"/>
         <ListView
-        initialListSize={25}
-        pageSize={25}
-        removeClippedSubviews={false}
+          initialListSize={25}
+          pageSize={25}
+          removeClippedSubviews={false}
           contentContainerStyle={{flexDirection:'row', flexWrap:'wrap'}}  
           dataSource={ads}
-          renderRow={(rowData) => <Ad key={rowData.id} ad={rowData}/>}
+          renderRow={(rowData) => <Ad navigation={this.props.navigation} key={rowData.id} ad={rowData}/>}
         />
       </View>
     );
   }
 }
-
 
 class SimpleScreen2 extends Component {
   constructor(props){
@@ -75,18 +100,17 @@ class SimpleScreen2 extends Component {
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
       <StatusBar barStyle="light-content"/>
         <ListView
-        initialListSize={25}
-        pageSize={25}
-        removeClippedSubviews={false}
+          initialListSize={25}
+          pageSize={25}
+          removeClippedSubviews={false}
           contentContainerStyle={{flexDirection:'row', flexWrap:'wrap'}}  
           dataSource={ads}
-          renderRow={(rowData) => <Ad key={rowData.id} ad={rowData}/>}
+          renderRow={(rowData) => <Ad navigation={this.props.navigation} key={rowData.id} ad={rowData}/>}
         />
       </View>
     );
   }
 }
-
 
 class SimpleScreen3 extends Component {
   constructor(props){
@@ -111,24 +135,46 @@ class SimpleScreen3 extends Component {
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
       <StatusBar barStyle="light-content"/>
         <ListView
-        initialListSize={25}
-        pageSize={25}
-        removeClippedSubviews={false}
+          initialListSize={25}
+          pageSize={25}
+          removeClippedSubviews={false}
           contentContainerStyle={{flexDirection:'row', flexWrap:'wrap'}}  
           dataSource={ads}
-          renderRow={(rowData) => <Ad key={rowData.id} ad={rowData}/>}
+          renderRow={(rowData) => <Ad navigation={this.props.navigation} key={rowData.id} ad={rowData}/>}
         />
       </View>
     );
   }
 }
 
-
 class AdView extends Component {
+  componentDidMount() {}
+  render() {
+    const{ad} = this.props.navigation.state.params;
+    return (
+      <View style={{ flex: 1 }}>
+        <ImageBackground source={{uri: ad.thumbnail}} style={{width:width, height:width}}>
+          <View style={{flex:1,flexDirection:'column', justifyContent:'flex-end'}}>
+          <View style={{flexDirection:'row', justifyContent:'space-between', backgroundColor:'transparent'}}>
+              <Text style={{fontSize:40, color:'white', fontWeight:'bold', margin:10}}>{ad.pay}KR</Text>
+              <Text style={{fontSize:40, color:'white', fontWeight:'bold', margin:10}}>{ad.pay}MIL</Text>
+            </View>
+          </View>
+        </ImageBackground>
+        <View>
+          <Text style={{fontSize:30, color:'black', fontWeight:'bold', margin:10}}>{ad.title}</Text>
+           <Text style={{fontSize:12, color:'black', fontWeight:'bold', margin:10}}>{ad.desc}</Text>
+        </View>
+      </View>
+    );
+  }
+}
+
+class MyAccount extends Component {
   render() {
     return (
-      <View style={{ backgroundColor: "blue", flex: 1 }}>
-        <Text>Ad view</Text>
+      <View style={{ flex: 1 }}>
+        <Text>Mitt Konto</Text>
       </View>
     );
   }
@@ -149,52 +195,80 @@ const MainGrid = TabNavigator({
   }
 }, {
   tabBarPosition: 'top',
+  swipeEnabled: true,
+  animationEnabled:true,
   tabBarOptions: {
     style: {
       backgroundColor: "#51A7F9",
+      borderTopWidth: 0
     },
     labelStyle: {
       color: "#FFF"
     }
   }
 },{
-  swipeEnabled: true,
   lazy: false
+});
+
+const MainStack = StackNavigator({
+  Main: {
+    screen: MainGrid,
+    navigationOptions: ({ navigation }) => ({
+      headerStyle: {
+        backgroundColor: "#51A7F9",
+        borderBottomWidth: 0,
+        borderTopWidth: 0
+      },
+      headerLeft: <Button title="Info" onPress={() => navigation.navigate('DrawerOpen')}/>
+    })
+  },
+}, {
+
 });
 
 const RootDrawer = DrawerNavigator({
   SimpleTabs: {
-    screen: MainGrid,
+    screen: MainStack,
     navigationOptions: {
+      header: null,
       drawer: () => ({
         label: 'Simple Tabs'
       }),
     },
   },
-});
-
-const MainStack = StackNavigator({
-  Main: {
-    screen: RootDrawer,
+  DrawerMyAccount: {
+    screen: MyAccount,
     navigationOptions: {
-      headerStyle: {
-        backgroundColor: "#51A7F9",
-        borderBottomWidth: 0,
-        shadowRadius: 0
-      }
+      mode:'modal',
+      header: null,
+      drawer: () => ({
+        label: 'DrawerMyAccount'
+      }),
+    },
+  }
+},{mode:'modal', headerMode:'none'});
+
+
+const ModalStack = StackNavigator({
+  MainStack: {
+    screen: RootDrawer,
+  },
+  MyAccount: {
+    screen: MyAccount,
+    navigationOptions:{
+      mode: "modal",
     }
   },
   AdView: {
     screen: AdView,
     navigationOptions: {
+      mode:'modal',
       header: null
     }
   }
 }, {
-  headerMode: "screen"
+  headerMode:'none',
 });
 
 
-
-
-export default MainStack;
+export default ModalStack;
