@@ -34,7 +34,7 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 const Ad = ({ad, navigation}) => {
   return (
-      <ImageBackground source={{uri: ad.thumbnail}} style={{width:thumbnailSize, height:thumbnailSize,marginHorizontal:1,marginTop:1}}>
+      <ImageBackground source={{uri: ad.thumbnail, cache: "default" }} style={{width:thumbnailSize, height:thumbnailSize,marginHorizontal:1,marginTop:1}}>
       <TouchableWithoutFeedback onPress={() => navigation.navigate('AdView',{ad})}>
         <View style={{flexDirection:'column', justifyContent:'space-between',flex:1}}>
           <View style={{flexDirection:'row', justifyContent:'space-between',alignItems:'flex-start', backgroundColor:'transparent'}}>
@@ -163,13 +163,36 @@ class SimpleScreen3 extends Component {
 }
 
 class AdView extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      uri: this.props.navigation.state.params.ad.thumbnail,
+      cache: "default"
+    };
+  }
+
+  componentDidMount() {
+    const{ad} = this.props.navigation.state.params;
+    let uri = ad.thumbnail.substring(0, ad.thumbnail.length - 2);
+    
+    Image.prefetch(uri)
+      .then(loaded => {
+        if (!loaded || !this._image) {
+          return;
+        }
+        this._image.setNativeProps({ source: [{uri, cache: 'default'}] });
+      })
+      .catch(err => console.log(err));
+  }
+
   render() {
     const{ad} = this.props.navigation.state.params;
-    let uri = ad.thumbnail.substring(0, ad.thumbnail.length - 2)
+
     return (
       <ScrollView>
       <View style={{ flex: 1 }}>
-        <ImageBackground source={{uri: uri}} style={{width:width, height:width}}>
+        <ImageBackground imageRef={ref => this._image = ref} source={{uri: ad.thumbnail, cache: "default" }} style={{width:width, height:width}}>
           <View style={{flex:1,flexDirection:'column', justifyContent:'flex-end'}}>
           <View style={{flexDirection:'row', justifyContent:'space-between', backgroundColor:'transparent'}}>
               <Text style={{fontSize:40, color:'white', fontWeight:'bold', margin:10}}>{ad.pay}KR</Text>
@@ -274,7 +297,8 @@ const MainStack = StackNavigator({
   AdView: {
     screen: AdView,
     navigationOptions: {
-      header: null
+      header: null,
+      drawerLockMode: "locked-closed"
     }
   }
 }, 
