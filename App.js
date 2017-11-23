@@ -163,15 +163,6 @@ class SimpleScreen3 extends Component {
 }
 
 class AdView extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      uri: this.props.navigation.state.params.ad.thumbnail,
-      cache: "default"
-    };
-  }
-
   componentDidMount() {
     const{ad} = this.props.navigation.state.params;
     let uri = ad.thumbnail.substring(0, ad.thumbnail.length - 2);
